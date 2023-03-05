@@ -11,11 +11,20 @@ class Vec3:
     def x(self):
         return self.v[0]
 
+    def r(self):
+        return self.x()
+
     def y(self):
         return self.v[1]
 
+    def g(self):
+        return self.y()
+
     def z(self):
         return self.v[2]
+
+    def b(self):
+        return self.z()
 
     def __mul__(self, other):
         if isinstance(other, float):

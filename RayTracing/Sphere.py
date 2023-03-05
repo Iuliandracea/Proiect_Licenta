@@ -1,5 +1,5 @@
 import math
-from Hittable import Hittable, HitRecord
+from hittable import Hittable, HitRecord
 from vec3 import Vec3, dot
 from ray import Ray
 

@@ -1,16 +1,28 @@
 import sys
+import random
 
 from vec3 import Vec3, unit_vector
 from vec3 import Vec3 as Color
 from ray import Ray
-from Hittable import Hittable, HittableList, HitRecord
-from Sphere import Sphere
+from hittable import Hittable, HittableList, HitRecord
+from sphere import Sphere
+from camera import Camera
 
 
-def write_color(f, v: Color):
-    r = int(255.999 * v.x())
-    g = int(255.999 * v.y())
-    b = int(255.999 * v.z())
+def clamp(x: float, min_val: float, max_val: float) -> float:
+    if x < min_val:
+        return min_val
+    if x > max_val:
+        return max_val
+    return x
+
+
+def write_color(f, pixel: Color, samples_per_pixel: int):
+    scale = 1.0 / samples_per_pixel
+
+    r = 256 * clamp(scale * pixel.r(), 0.0, 0.999)
+    g = 256 * clamp(scale * pixel.g(), 0.0, 0.999)
+    b = 256 * clamp(scale * pixel.b(), 0.0, 0.999)
     f.write(f'{r} {g} {b}\n')
 
 
@@ -29,6 +41,7 @@ def main():
     aspect_ratio = 16.0 / 9.0
     image_width = 400
     image_height = int(image_width / aspect_ratio)
+    samples_per_pixel = 100
 
     # World
     world = HittableList()
@@ -36,14 +49,7 @@ def main():
     world.add(Sphere(Vec3(0.0, -100.5, -1.0), 100.0))
 
     # Camera
-    viewport_height = 2.0
-    viewport_width = aspect_ratio * viewport_height
-    focal_length = 1.0
-
-    origin = Vec3()
-    horizontal = Vec3(viewport_width, 0.0, 0.0)
-    vertical = Vec3(0.0, viewport_height, 0.0)
-    lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3(0.0, 0.0, focal_length)
+    cam = Camera()
 
     # Render
     img = open('img.ppm', 'w')
@@ -52,11 +58,13 @@ def main():
     for i in range(image_height - 1, -1, -1):
         print(f'Lines Remaining {i}\n', file=sys.stderr)
         for j in range(image_width):
-            u = float(j) / float(image_width - 1)
-            v = float(i) / float(image_height - 1)
-            r = Ray(origin, lower_left_corner + u * horizontal + v * vertical - origin)
-            pixel = ray_color(r, world)
-            write_color(img, pixel)
+            pixel_color = Color()
+            for s in range(samples_per_pixel):
+                u = float(j + random.random()) / float(image_width - 1)
+                v = float(i + random.random()) / float(image_height - 1)
+                r = cam.get_ray(u, v)
+                pixel_color += ray_color(r, world)
+            write_color(img, pixel_color, samples_per_pixel)
 
     img.close()
 
