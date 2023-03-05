@@ -37,13 +37,13 @@ class Vec3:
 
     def __truediv__(self, other):
         if isinstance(other, float):
-            return self * (1 / other)
+            return self * (1.0 / other)
         if isinstance(other, Vec3):
             return Vec3(self.v[0] / other.x(), self.v[1] / other.y(), self.v[2] / other.z())
 
     def __rdiv__(self, other):
         if isinstance(other, float):
-            return self * (1 / other)
+            return self * (1.0 / other)
         if isinstance(other, Vec3):
             return Vec3(self.v[0] / other.x(), self.v[1] / other.y(), self.v[2] / other.z())
 
@@ -53,8 +53,11 @@ class Vec3:
         if isinstance(other, Vec3):
             return Vec3(self.v[0] * other.x(), self.v[1] * other.y(), self.v[2] * other.z())
 
+    def length_squared(self):
+        return sum([x**2 for x in self.v])
+
     def length(self):
-        return math.sqrt(sum([x**2 for x in self.v]))
+        return math.sqrt(self.length_squared())
 
     def __repr__(self):
         return f'{self.v[0]} {self.v[1]} {self.v[2]}'
