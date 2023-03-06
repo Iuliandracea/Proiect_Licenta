@@ -56,6 +56,7 @@ def main():
     # World
     world = HittableList()
 
+    # 3 Balls Scene
     material_ground = Lambertian(Color(0.8, 0.8, 0.0))
     material_center = Lambertian(Color(0.1, 0.2, 0.5))
     material_left = Dielectric(1.5)
@@ -64,11 +65,20 @@ def main():
     world.add(Sphere(Vec3(0.0, -100.5, -1.0), 100.0, material_ground))
     world.add(Sphere(Vec3(0.0, 0.0, -1.0), 0.5, material_center))
     world.add(Sphere(Vec3(-1.0, 0.0, -1.0), 0.5, material_left))
-    world.add(Sphere(Vec3(-1.0, 0.0, -1.0), -0.4, material_left))
+    world.add(Sphere(Vec3(-1.0, 0.0, -1.0), -0.45, material_left))
     world.add(Sphere(Vec3(1.0, 0.0, -1.0), 0.5, material_right))
 
+    '''
+    R = math.cos(math.pi / 4.0)
+    # 2 Balls Scene
+    material_left = Lambertian(Color(0.0, 0.0, 1.0))
+    material_right = Lambertian(Color(1.0, 0.0, 0.0))
+
+    world.add(Sphere(Vec3(-R, 0.0, -1.0), R, material_left))
+    world.add(Sphere(Vec3(R, 0.0, -1.0), R, material_right))'''
+
     # Camera
-    cam = Camera()
+    cam = Camera(Vec3(-2.0, 2.0, 1.0), Vec3(0.0, 0.0, -1.0), Vec3(0.0, 1.0, 0.0), 20.0, aspect_ratio)
 
     # Render
     img = open('img.ppm', 'w')

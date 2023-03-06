@@ -109,7 +109,9 @@ def dot(u: Vec3, v: Vec3):
 
 
 def cross(u: Vec3, v: Vec3):
-    return Vec3(u.y() * v.z() - u.z() * v.y(), u.x() * v.z() - u.z() * v.x(), u.x() * v.y() - u.y() * v.x())
+    return Vec3(u.y() * v.z() - u.z() * v.y(),
+                u.z() * v.x() - u.x() * v.z(),
+                u.x() * v.y() - u.y() * v.x())
 
 
 def reflect(v: Vec3, n: Vec3):
