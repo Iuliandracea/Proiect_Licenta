@@ -104,6 +104,13 @@ def random_in_hemisphere(normal: Vec3):
         return -unit_sphere
 
 
+def random_in_unit_disk():
+    while True:
+        p = Vec3(-1 + 2 * random.random(), -1 + 2 * random.random(), 0.0)
+        if p.length_squared() < 1.0:
+            return p
+
+
 def dot(u: Vec3, v: Vec3):
     return u.x() * v.x() + u.y() * v.y() + u.z() * v.z()
 

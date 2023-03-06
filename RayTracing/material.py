@@ -52,7 +52,7 @@ class Metal(Material):
 
 
 class Dielectric(Material):
-    def __init__(self, refraction_index):
+    def __init__(self, refraction_index: float):
         self.ri = refraction_index
 
     def scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool:
