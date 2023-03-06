@@ -9,6 +9,7 @@ class HitRecord:
         self.normal = n
         self.t = t
         self.front_face = False
+        self.mat_ptr = None
 
     def set_face_normal(self, r: Ray, out_normal: Vec3):
         self.front_face = dot(r.direction(), out_normal) < 0
@@ -49,5 +50,6 @@ class HittableList(Hittable):
                 rec.normal = temp_rec.normal
                 rec.p = temp_rec.p
                 rec.front_face = temp_rec.front_face
+                rec.mat_ptr = temp_rec.mat_ptr
 
         return any_hit

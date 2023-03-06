@@ -1,3 +1,4 @@
+import math
 import sys
 import random
 
@@ -7,6 +8,7 @@ from ray import Ray
 from hittable import Hittable, HittableList, HitRecord
 from sphere import Sphere
 from camera import Camera
+from material import Lambertian, Metal
 
 
 def clamp(x: float, min_val: float, max_val: float) -> float:
@@ -19,17 +21,24 @@ def clamp(x: float, min_val: float, max_val: float) -> float:
 
 def write_color(f, pixel: Color, samples_per_pixel: int):
     scale = 1.0 / samples_per_pixel
+    r = math.sqrt(scale * pixel.r())
+    g = math.sqrt(scale * pixel.g())
+    b = math.sqrt(scale * pixel.b())
+    f.write(f'{256 * clamp(r, 0.0, 0.999)} {256 * clamp(g, 0.0, 0.999)} {256 * clamp(b, 0.0, 0.999)}\n')
 
-    r = 256 * clamp(scale * pixel.r(), 0.0, 0.999)
-    g = 256 * clamp(scale * pixel.g(), 0.0, 0.999)
-    b = 256 * clamp(scale * pixel.b(), 0.0, 0.999)
-    f.write(f'{r} {g} {b}\n')
 
-
-def ray_color(r: Ray, world: Hittable):
+def ray_color(r: Ray, world: Hittable, depth: int):
     rec = HitRecord()
-    if world.hit(r, 0.0, float('inf'), rec):
-        return 0.5 * (rec.normal + 1.0)
+
+    if depth <= 0:
+        return Color()  # the same as Color(0.0, 0.0, 0.0)
+
+    if world.hit(r, 0.001, float('inf'), rec):
+        scattered = Ray()
+        attenuation = Color()
+        if rec.mat_ptr.scatter(r, rec, attenuation, scattered):
+            return attenuation * ray_color(scattered, world, depth - 1)
+        return Color(0.0, 0.0, 0.0)
 
     unit_direction = unit_vector(r.direction())
     t = 0.5 * (unit_direction.y() + 1.0)
@@ -41,12 +50,21 @@ def main():
     aspect_ratio = 16.0 / 9.0
     image_width = 400
     image_height = int(image_width / aspect_ratio)
-    samples_per_pixel = 100
+    samples_per_pixel = 50
+    max_depth = 3
 
     # World
     world = HittableList()
-    world.add(Sphere(Vec3(0.0, 0.0, -1.0), 0.5))
-    world.add(Sphere(Vec3(0.0, -100.5, -1.0), 100.0))
+
+    material_ground = Lambertian(Color(0.8, 0.8, 0.0))
+    material_center = Lambertian(Color(0.7, 0.3, 0.3))
+    material_left = Metal(Color(0.8, 0.8, 0.8))
+    material_right = Metal(Color(0.8, 0.6, 0.2))
+
+    world.add(Sphere(Vec3(0.0, -100.5, -1.0), 100.0, material_ground))
+    world.add(Sphere(Vec3(0.0, 0.0, -1.0), 0.5, material_center))
+    world.add(Sphere(Vec3(-1.0, 0.0, -1.0), 0.5, material_left))
+    world.add(Sphere(Vec3(1.0, 0.0, -1.0), 0.5, material_right))
 
     # Camera
     cam = Camera()
@@ -56,14 +74,14 @@ def main():
     img.write(f'P3\n{image_width} {image_height}\n255\n')
 
     for i in range(image_height - 1, -1, -1):
-        print(f'Lines Remaining {i}\n', file=sys.stderr)
+        print(f'Lines Remaining {i}', file=sys.stderr)
         for j in range(image_width):
             pixel_color = Color()
             for s in range(samples_per_pixel):
                 u = float(j + random.random()) / float(image_width - 1)
                 v = float(i + random.random()) / float(image_height - 1)
                 r = cam.get_ray(u, v)
-                pixel_color += ray_color(r, world)
+                pixel_color += ray_color(r, world, max_depth)
             write_color(img, pixel_color, samples_per_pixel)
 
     img.close()
