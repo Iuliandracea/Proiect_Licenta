@@ -116,5 +116,12 @@ def reflect(v: Vec3, n: Vec3):
     return v - 2 * dot(v, n) * n
 
 
+def refract(uv: Vec3, n: Vec3, refraction_ratio: float):
+    cos_theta = min(dot(-uv, n), 1.0)
+    r_out_perp = refraction_ratio * (uv + n * cos_theta)
+    r_out_parallel = math.sqrt(math.fabs(1.0 - r_out_perp.length_squared())) * n
+    return r_out_perp - r_out_parallel
+
+
 def unit_vector(u: Vec3):
     return u / u.length()

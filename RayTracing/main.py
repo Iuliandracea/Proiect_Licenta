@@ -8,7 +8,7 @@ from ray import Ray
 from hittable import Hittable, HittableList, HitRecord
 from sphere import Sphere
 from camera import Camera
-from material import Lambertian, Metal
+from material import Lambertian, Metal, Dielectric
 
 
 def clamp(x: float, min_val: float, max_val: float) -> float:
@@ -51,19 +51,20 @@ def main():
     image_width = 400
     image_height = int(image_width / aspect_ratio)
     samples_per_pixel = 50
-    max_depth = 3
+    max_depth = 10
 
     # World
     world = HittableList()
 
     material_ground = Lambertian(Color(0.8, 0.8, 0.0))
-    material_center = Lambertian(Color(0.7, 0.3, 0.3))
-    material_left = Metal(Color(0.8, 0.8, 0.8))
-    material_right = Metal(Color(0.8, 0.6, 0.2))
+    material_center = Lambertian(Color(0.1, 0.2, 0.5))
+    material_left = Dielectric(1.5)
+    material_right = Metal(Color(0.8, 0.6, 0.2), 0.0)
 
     world.add(Sphere(Vec3(0.0, -100.5, -1.0), 100.0, material_ground))
     world.add(Sphere(Vec3(0.0, 0.0, -1.0), 0.5, material_center))
     world.add(Sphere(Vec3(-1.0, 0.0, -1.0), 0.5, material_left))
+    world.add(Sphere(Vec3(-1.0, 0.0, -1.0), -0.4, material_left))
     world.add(Sphere(Vec3(1.0, 0.0, -1.0), 0.5, material_right))
 
     # Camera
